@@ -31,8 +31,33 @@ module ActiveSupport
         @cache = Memcached.new(@addresses, @options.reverse_merge(DEFAULT_OPTIONS))
       end
 
+      def increment(key, amount=1)
+        log 'incrementing', key, amount
+        @cache.incr(key, amount)
+      rescue Memcached::Error
+        nil
+      end
+
+      def decrement(key, amount=1)
+        log 'decrementing', key, amount
+        @cache.decr(key, amount)
+      rescue Memcached::Error
+        nil
+      end
+
+      def clear
+        @cache.flush
+      end
+
+      def stats
+        @cache.stats
+      end
+
+      protected
+
       def read_entry(key, options = nil)
-        @cache.get(key, marshal?(options))
+        entry = @cache.get(key, marshal?(options))
+        entry.is_a?(Entry) ? entry : Entry.new(entry)
       rescue Memcached::NotFound
         nil
       rescue Memcached::Error => e
@@ -59,46 +84,19 @@ module ActiveSupport
         false
       end
 
-      def exist?(key, options = nil)
-        !read(key, options).nil?
-      end
-
-      def increment(key, amount=1)
-        log 'incrementing', key, amount
-        @cache.incr(key, amount)
-      rescue Memcached::Error
-        nil
-      end
-
-      def decrement(key, amount=1)
-        log 'decrementing', key, amount
-        @cache.decr(key, amount)
-      rescue Memcached::Error
-        nil
-      end
-
-
-      def clear
-        @cache.flush
-      end
-
-      def stats
-        @cache.stats
-      end
-
       private
 
-        def expires_in(options)
-          (options || {})[:expires_in] || 0
-        end
+      def expires_in(options)
+        (options || {})[:expires_in] || 0
+      end
 
-        def marshal?(options)
-          !(options || {})[:raw]
-        end
+      def marshal?(options)
+        !(options || {})[:raw]
+      end
 
-        def log_error(exception)
-          logger.error "MemcachedError (#{exception.inspect}): #{exception.message}" if logger && !@logger_off
-        end
+      def log_error(exception)
+        logger.error "MemcachedError (#{exception.inspect}): #{exception.message}" if logger && !@logger_off
+      end
     end
   end
 end
