@@ -56,14 +56,8 @@ module ActiveSupport
       protected
 
       def read_entry(key, options = nil)
-        raw_value = @cache.get(key, marshal?(options))
-
-        if raw_value
-          entry = Marshal.load(raw_value) rescue raw_value
-          entry.is_a?(Entry) ? entry : Entry.new(entry)
-        else
-          nil
-        end
+        entry = @cache.get(key, marshal?(options))
+        entry.is_a?(Entry) ? entry : Entry.new(entry)
       rescue Memcached::NotFound
         nil
       rescue Memcached::Error => e
