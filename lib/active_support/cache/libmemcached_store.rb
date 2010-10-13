@@ -14,7 +14,7 @@ end
 module ActiveSupport
   module Cache
     class LibmemcachedStore < Store
-      attr_reader :addresses
+      attr_reader :addresses, :options
 
       DEFAULT_OPTIONS = {
         :distribution => :consistent,
@@ -24,15 +24,14 @@ module ActiveSupport
 
       def initialize(*addresses)
         addresses.flatten!
-        options = addresses.extract_options!
+        @options = addresses.extract_options!
         addresses = %w(localhost) if addresses.empty?
 
         @addresses = addresses
-        @cache = Memcached.new(@addresses, options.reverse_merge(DEFAULT_OPTIONS))
+        @cache = Memcached.new(@addresses, @options.reverse_merge(DEFAULT_OPTIONS))
       end
 
-      def read(key, options = nil)
-        super
+      def read_entry(key, options = nil)
         @cache.get(key, marshal?(options))
       rescue Memcached::NotFound
         nil
@@ -43,8 +42,7 @@ module ActiveSupport
 
       # Set the key to the given value. Pass :unless_exist => true if you want to
       # skip setting a key that already exists.
-      def write(key, value, options = nil)
-        super
+      def write_entry(key, value, options = nil)
         method = (options && options[:unless_exist]) ? :add : :set
         @cache.send(method, key, value, expires_in(options), marshal?(options))
         true
@@ -53,8 +51,7 @@ module ActiveSupport
         false
       end
 
-      def delete(key, options = nil)
-        super
+      def delete_entry(key, options = nil)
         @cache.delete(key)
         true
       rescue Memcached::Error => e
@@ -80,10 +77,6 @@ module ActiveSupport
         nil
       end
 
-      def delete_matched(matcher, options = nil)
-        super
-        raise NotImplementedError
-      end
 
       def clear
         @cache.flush
