@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
 
   s.authors = ["Shopify"]
   s.date = %q{2010-10-12}
-  s.description = %q{An ActiveSupport cache store that uses the C-based libmemcached client through
+  s.description = s.summary = %q{An ActiveSupport cache store that uses the C-based libmemcached client through
       Evan Weaver's Ruby/SWIG wrapper, memcached. libmemcached is fast, lightweight,
       and supports consistent hashing, non-blocking IO, and graceful server failover.}
 
