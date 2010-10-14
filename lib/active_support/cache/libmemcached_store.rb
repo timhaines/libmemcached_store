@@ -11,6 +11,17 @@ class Memcached
   end
 end
 
+class ActiveSupport::Cache::Entry
+  # In 3.0 all values returned from Rails.cache.read are frozen.
+  # This makes sense for an in-memory store storing object references,
+  # but for a marshalled store we should be able to modify things.
+  def value_with_dup
+    result = value_without_dup
+    result.duplicable? ? result.dup : result
+  end
+  alias_method_chain :value, :dup
+end
+
 module ActiveSupport
   module Cache
     class LibmemcachedStore < Store
