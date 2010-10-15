@@ -78,8 +78,10 @@ module ActiveSupport
 
       # Set the key to the given value. Pass :unless_exist => true if you want to
       # skip setting a key that already exists.
-      def write_entry(key, value, options = nil)
+      def write_entry(key, entry, options = nil)
         method = (options && options[:unless_exist]) ? :add : :set
+        value = options[:raw] ? entry.value.to_s : entry
+
         @cache.send(method, key, value, expires_in(options), marshal?(options))
         true
       rescue Memcached::Error => e
