@@ -28,9 +28,8 @@ module ActiveSupport
       attr_reader :addresses, :options
 
       DEFAULT_OPTIONS = {
-        :distribution => :consistent,
-        :no_block => true,
-        :failover => true
+        :distribution => :consistent_ketama,
+        :binary_protocol => true
       }
 
       def initialize(*addresses)
