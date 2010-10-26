@@ -25,7 +25,7 @@ end
 module ActiveSupport
   module Cache
     class LibmemcachedStore < Store
-      attr_reader :addresses, :options
+      attr_reader :addresses
 
       DEFAULT_OPTIONS = {
         :distribution => :consistent_ketama,
