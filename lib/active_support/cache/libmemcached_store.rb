@@ -66,8 +66,7 @@ module ActiveSupport
       protected
 
       def read_entry(key, options = nil)
-        entry = @cache.get(key, marshal?(options))
-        entry.is_a?(Entry) ? entry : Entry.new(entry)
+        deserialize_entry(@cache.get(key, false))
       rescue Memcached::NotFound
         nil
       rescue Memcached::Error => e
@@ -97,6 +96,14 @@ module ActiveSupport
       end
 
       private
+      def deserialize_entry(raw_value)
+        if raw_value
+          entry = Marshal.load(raw_value) rescue raw_value
+          entry.is_a?(Entry) ? entry : Entry.new(entry)
+        else
+          nil
+        end
+      end
 
       def expires_in(options)
         (options || {})[:expires_in] || 0
