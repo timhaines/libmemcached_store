@@ -40,6 +40,10 @@ designation. If no port is given, 11211 is assumed:
 
   config.cache_store = :libmemcached_store, %w(cache-01 cache-02 127.0.0.1:11212)
 
+You can also use <tt>:libmemcached_store</tt> with <tt>config.session_store</tt>
+
+  config.session_store = :libmemcached_store
+
 == Props
 
 Thanks to Brian Aker (http://tangent.org) for creating libmemcached, and Evan

@@ -4,16 +4,16 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{libmemcached_store}
-  s.version = "0.2.2"
+  s.name = %q{benhutton-libmemcached_store}
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Jeffrey Hardy"]
+  s.authors = ["Ben Hutton", "Jeffrey Hardy"]
   s.date = %q{2010-08-24}
   s.description = %q{An ActiveSupport cache store that uses the C-based libmemcached client through
       Evan Weaver's Ruby/SWIG wrapper, memcached. libmemcached is fast, lightweight,
       and supports consistent hashing, non-blocking IO, and graceful server failover.}
-  s.email = %q{packagethief@gmail.com}
+  s.email = %q{benhutton@gmail.com}
   s.extra_rdoc_files = [
     "README"
   ]
@@ -24,11 +24,12 @@ Gem::Specification.new do |s|
      "Rakefile",
      "lib/active_support/cache/compressed_libmemcached_store.rb",
      "lib/active_support/cache/libmemcached_store.rb",
+     "lib/action_dispatch/session/libmemcached_store.rb",
      "lib/libmemcached_store.rb",
      "libmemcached_store.gemspec",
      "test/libmemcached_store_test.rb"
   ]
-  s.homepage = %q{http://github.com/37signals/libmemcached_store}
+  s.homepage = %q{http://github.com/benhutton/libmemcached_store}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
