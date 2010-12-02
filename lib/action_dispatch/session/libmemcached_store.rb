@@ -44,6 +44,15 @@ begin
           return false
         end
 
+        def destroy(env)
+          if sid = current_session_id(env)
+            @pool.delete(sid)
+          end
+        rescue Memcached::Error => e
+          log_error(e)
+          return false
+        end
+
         def log_error(exception)
           logger ||= RAILS_DEFAULT_LOGGER
           logger.error "MemcachedError (#{exception.inspect}): #{exception.message}" if logger && !@logger_off
