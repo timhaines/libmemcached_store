@@ -167,6 +167,11 @@ module CacheStoreBehavior
     Time.stubs(:now).returns(time + 61)
     assert_nil @cache.read('foo')
   end
+  
+  def test_expires_in_as_activesupport_duration_or_float
+    assert_nothing_raised { @cache.write('foo', 'bar', :expires_in => 1.minute) }
+    assert_nothing_raised { @cache.write('foo', 'bar', :expires_in => 60.0) }
+  end
 
   def test_race_condition_protection
     time = Time.now

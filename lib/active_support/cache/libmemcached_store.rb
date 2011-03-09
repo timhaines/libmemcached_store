@@ -106,7 +106,7 @@ module ActiveSupport
       end
 
       def expires_in(options)
-        (options || {})[:expires_in] || 0
+        (options || {})[:expires_in].to_i
       end
 
       def marshal?(options)
