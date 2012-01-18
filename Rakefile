@@ -1,14 +1,12 @@
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rdoc/task'
 
-desc 'Default: run unit tests.'
 task :default => :test
-
-desc 'Test the libmemcached_store plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
+Rake::TestTask.new do |t|
+  t.libs << 'test'
   t.pattern = 'test/**/*_test.rb'
+  t.warning = false
   t.verbose = true
 end
 
