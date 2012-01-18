@@ -4,9 +4,10 @@ class ActiveSupport::Cache::Entry
   # In 3.0 all values returned from Rails.cache.read are frozen.
   # This makes sense for an in-memory store storing object references,
   # but for a marshalled store we should be able to modify things.
+  # Starting with 3.2, values are not frozen anymore.
   def value_with_dup
     result = value_without_dup
-    result.duplicable? ? result.dup : result
+    result.frozen? && result.duplicable? ? result.dup : result
   end
   alias_method_chain :value, :dup
 end
