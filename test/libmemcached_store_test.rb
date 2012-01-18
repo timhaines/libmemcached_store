@@ -168,7 +168,7 @@ module CacheStoreBehavior
     Time.stubs(:now).returns(time + 61)
     assert_nil @cache.read('foo')
   end
-  
+
   def test_expires_in_as_activesupport_duration_or_float
     assert_nothing_raised { @cache.write('foo', 'bar', :expires_in => 1.minute) }
     assert_nothing_raised { @cache.write('foo', 'bar', :expires_in => 60.0) }
@@ -258,7 +258,7 @@ end
 class LibmemcachedStoreTest < Test::Unit::TestCase
   include CacheStoreBehavior
   include CacheIncrementDecrementBehavior
-  
+
   def setup
     @cache = ActiveSupport::Cache.lookup_store(:libmemcached_store, :expires_in => 60)
     @cache.clear
@@ -270,8 +270,8 @@ class LibmemcachedStoreTest < Test::Unit::TestCase
     assert_kind_of ActiveSupport::Cache::LibmemcachedStore, @cache
   end
 
-  def test_should_set_server_addresses_to_localhost_if_none_are_given
-    assert_equal %w(localhost), @cache.addresses
+  def test_should_set_server_addresses_to_nil_if_none_are_given
+    assert_equal [], @cache.addresses
   end
 
   def test_should_set_custom_server_addresses

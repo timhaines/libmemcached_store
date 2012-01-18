@@ -1,16 +1,5 @@
 require 'memcached'
 
-class Memcached
-  # The latest version of memcached (0.11) doesn't support hostnames with dashes
-  # in their names, so we overwrite it here to be more lenient.
-  def set_servers(servers)
-    [*servers].each_with_index do |server, index|
-      host, port = server.split(":")
-      Lib.memcached_server_add(@struct, host, port.to_i)
-    end
-  end
-end
-
 class ActiveSupport::Cache::Entry
   # In 3.0 all values returned from Rails.cache.read are frozen.
   # This makes sense for an in-memory store storing object references,
@@ -35,20 +24,18 @@ module ActiveSupport
       def initialize(*addresses)
         addresses.flatten!
         @options = addresses.extract_options!
-        addresses = %w(localhost) if addresses.empty?
-
         @addresses = addresses
         @cache = Memcached.new(@addresses, @options.reverse_merge(DEFAULT_OPTIONS))
       end
 
-      def increment(key, amount=1)
+      def increment(key, amount = 1, options = nil)
         log 'incrementing', key, amount
         @cache.incr(key, amount)
       rescue Memcached::Error
         nil
       end
 
-      def decrement(key, amount=1)
+      def decrement(key, amount = 1, options = nil)
         log 'decrementing', key, amount
         @cache.decr(key, amount)
       rescue Memcached::Error
@@ -114,7 +101,8 @@ module ActiveSupport
       end
 
       def log_error(exception)
-        logger.error "MemcachedError (#{exception.inspect}): #{exception.message}" if logger && !@logger_off
+        return unless logger && logger.error?
+        logger.error "MemcachedError (#{exception.inspect}): #{exception.message}"
       end
     end
   end
