@@ -5,10 +5,7 @@ module ActionDispatch
   module Session
     class LibmemcachedStore < AbstractStore
 
-      DEFAULT_OPTIONS = Abstract::ID::DEFAULT_OPTIONS.merge {
-        :prefix_key => 'rack:session',
-        :memcache_server => 'localhost:11211'
-      }
+      DEFAULT_OPTIONS = Rack::Session::Abstract::ID::DEFAULT_OPTIONS.merge(:prefix_key => 'rack:session', :memcache_server => 'localhost:11211')
 
       def initialize(app, options = {})
         options[:expire_after] ||= options[:expires]
@@ -22,7 +19,11 @@ module ActionDispatch
       def generate_sid
         loop do
           sid = super
-          break sid unless @pool.get(sid, true)
+          begin
+            @pool.get(sid)
+          rescue Memcached::NotFound
+            break sid
+          end
         end
       end
 
