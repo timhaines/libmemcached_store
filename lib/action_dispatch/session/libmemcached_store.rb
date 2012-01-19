@@ -1,4 +1,5 @@
 require 'memcached'
+require 'rack/session/abstract/id'
 
 module ActionDispatch
   module Session
@@ -37,7 +38,7 @@ module ActionDispatch
         [sid, session]
       end
 
-      def set_session(env, session_id, new_session, options)
+      def set_session(env, session_id, new_session, options = {})
         expiry  = options[:expire_after]
         expiry = expiry.nil? ? 0 : expiry + 1
 
@@ -47,7 +48,7 @@ module ActionDispatch
         end
       end
 
-      def destroy_session(env, session_id, options)
+      def destroy_session(env, session_id, options = {})
         with_lock(env, nil) do
           @pool.delete(sid)
           generate_sid unless options[:drop]
