@@ -51,7 +51,7 @@ module ActionDispatch
 
       def destroy_session(env, session_id, options = {})
         with_lock(env, nil) do
-          @pool.delete(sid)
+          @pool.delete(session_id)
           generate_sid unless options[:drop]
         end
       end
