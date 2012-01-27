@@ -1,8 +1,13 @@
+require 'rubygems'
+require 'bundler/setup'
+require 'appraisal'
+
 require 'rake'
 require 'rake/testtask'
 require 'rdoc/task'
 
 task :default => :test
+
 Rake::TestTask.new do |t|
   t.libs << 'test'
   t.pattern = 'test/**/*_test.rb'
