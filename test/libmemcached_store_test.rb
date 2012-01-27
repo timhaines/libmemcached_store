@@ -1,5 +1,4 @@
-$:.unshift File.expand_path('../../lib', __FILE__)
-require 'test/unit'
+require 'test_helper'
 require 'rubygems'
 require 'active_support'
 require 'memcached'
@@ -76,7 +75,7 @@ module CacheStoreBehavior
     @cache.write('foo', 'bar', :compress => true)
     raw_value = @cache.send(:read_entry, 'foo', {}).raw_value
     assert_equal 'bar', @cache.read('foo')
-    assert_equal 'bar', raw_value
+    assert_equal 'bar', Marshal.load(raw_value)
   end
 
   def test_read_and_write_compressed_large_data
