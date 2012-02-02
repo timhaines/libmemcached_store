@@ -60,7 +60,7 @@ module ActionDispatch
         @mutex.lock if env['rack.multithread']
         yield
       rescue Memcached::Error => e
-        logger.error e.error
+        logger.error(e.message) if logger && !silence?
         default
       ensure
         @mutex.unlock if @mutex.locked?
