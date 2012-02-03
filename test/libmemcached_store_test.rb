@@ -1,15 +1,12 @@
 require 'test_helper'
-require 'rubygems'
-require 'active_support'
 require 'memcached'
-require 'mocha'
+require 'active_support'
 require 'active_support/core_ext/module/aliasing'
 require 'active_support/core_ext/object/duplicable'
 require 'active_support/cache/libmemcached_store'
-require 'logger'
 
 # Make it easier to get at the underlying cache options during testing.
-class ActiveSupport::Cache::LibmemcachedStore < ActiveSupport::Cache::Store
+class ActiveSupport::Cache::LibmemcachedStore
   delegate :options, :to => '@cache'
 end
 
@@ -284,7 +281,6 @@ class LibmemcachedStoreTest < MiniTest::Unit::TestCase
     @cache = ActiveSupport::Cache.lookup_store(:libmemcached_store, :expires_in => 60)
     @cache.clear
     @cache.silence!
-    @cache.logger = Logger.new("/dev/null")
   end
 
   def test_should_identify_cache_store
