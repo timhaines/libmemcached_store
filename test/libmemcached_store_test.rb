@@ -150,7 +150,7 @@ module CacheStoreBehavior
   def test_original_store_objects_should_not_be_immutable
     bar = 'bar'
     @cache.write('foo', bar)
-    assert_nothing_raised { bar.gsub!(/.*/, 'baz') }
+    assert_equal 'baz', bar.gsub!(/r/, 'z')
   end
 
   def test_expires_in
@@ -167,9 +167,32 @@ module CacheStoreBehavior
     assert_nil @cache.read('foo')
   end
 
-  def test_expires_in_as_activesupport_duration_or_float
-    assert_nothing_raised { @cache.write('foo', 'bar', :expires_in => 1.minute) }
-    assert_nothing_raised { @cache.write('foo', 'bar', :expires_in => 60.0) }
+  def test_expires_in_as_activesupport_duration
+    time = Time.local(2012, 02, 03)
+    Time.stubs(:now).returns(time)
+
+    @cache.write('foo', 'bar', :expires_in => 1.minute)
+    assert_equal 'bar', @cache.read('foo')
+
+    Time.stubs(:now).returns(time + 30)
+    assert_equal 'bar', @cache.read('foo')
+
+    Time.stubs(:now).returns(time + 61)
+    assert_nil @cache.read('foo')
+  end
+
+  def test_expires_in_as_float
+    time = Time.local(2012, 02, 03)
+    Time.stubs(:now).returns(time)
+
+    @cache.write('foo', 'bar', :expires_in => 60.0)
+    assert_equal 'bar', @cache.read('foo')
+
+    Time.stubs(:now).returns(time + 30)
+    assert_equal 'bar', @cache.read('foo')
+
+    Time.stubs(:now).returns(time + 61)
+    assert_nil @cache.read('foo')
   end
 
   def test_race_condition_protection
@@ -253,7 +276,7 @@ module CacheIncrementDecrementBehavior
   end
 end
 
-class LibmemcachedStoreTest < Test::Unit::TestCase
+class LibmemcachedStoreTest < MiniTest::Unit::TestCase
   include CacheStoreBehavior
   include CacheIncrementDecrementBehavior
 
