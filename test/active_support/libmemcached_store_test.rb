@@ -22,6 +22,14 @@ module CacheStoreBehavior
     assert_equal 'baz', @cache.read('foo')
   end
 
+  #Memcached connection dies if you try to read a key with length > 250
+  def test_should_raise_an_exception_if_the_key_is_too_long
+    lk = "a"*1000
+    assert_raises(Memcached::NotStored) {
+     @cache.read(lk)
+    }
+  end  
+
   def test_fetch_without_cache_miss
     @cache.write('foo', 'bar')
     @cache.expects(:write).never

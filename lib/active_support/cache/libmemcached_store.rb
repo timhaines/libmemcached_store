@@ -33,14 +33,14 @@ module ActiveSupport
         log 'incrementing', key, amount
         @cache.incr(key, amount)
       rescue Memcached::Error
-        nil
+        raise
       end
 
       def decrement(key, amount = 1, options = nil)
         log 'decrementing', key, amount
         @cache.decr(key, amount)
       rescue Memcached::Error
-        nil
+        raise
       end
 
       def clear
@@ -51,28 +51,46 @@ module ActiveSupport
         @cache.stats
       end
 
+      def read_multi(*names)
+        # Rails.logger.info "getting names #{names}"
+        options = names.extract_options!
+        options = merged_options(options)
+        values = @cache.get(names)
+        return nil if values.nil?
+        results = {}
+        values.each do |k, v|
+          entry = deserialize_entry(v)
+          results[k] = entry.value
+        end
+        return results  
+      rescue Memcached::Error => e
+        log_error(e)
+        raise
+      end
+
+
       protected
 
       def read_entry(key, options = nil)
-        deserialize_entry(@cache.get(key, false))
+        deserialize_entry(@cache.get(key, false)) 
       rescue Memcached::NotFound
         nil
       rescue Memcached::Error => e
         log_error(e)
-        nil
+        raise
       end
+
 
       # Set the key to the given value. Pass :unless_exist => true if you want to
       # skip setting a key that already exists.
       def write_entry(key, entry, options = nil)
         method = (options && options[:unless_exist]) ? :add : :set
         value = options[:raw] ? entry.value.to_s : entry
-
         @cache.send(method, key, value, expires_in(options), marshal?(options))
         true
       rescue Memcached::Error => e
         log_error(e)
-        false
+        raise
       end
 
       def delete_entry(key, options = nil)
@@ -80,7 +98,7 @@ module ActiveSupport
         true
       rescue Memcached::Error => e
         log_error(e)
-        false
+        raise
       end
 
       private
