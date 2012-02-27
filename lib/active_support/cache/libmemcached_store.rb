@@ -52,7 +52,6 @@ module ActiveSupport
       end
 
       def read_multi(*names)
-        # Rails.logger.info "getting names #{names}"
         options = names.extract_options!
         options = merged_options(options)
         values = @cache.get(names)
