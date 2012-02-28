@@ -17,10 +17,11 @@ module ActiveSupport
     class LibmemcachedStore < Store
       attr_reader :addresses
 
-      DEFAULT_OPTIONS = {
-        :distribution => :consistent_ketama,
-        :binary_protocol => true
-      }
+      DEFAULT_OPTIONS = {}
+      # {
+      #   :distribution => :consistent_ketama,
+      #   :binary_protocol => true
+      # }
 
       def initialize(*addresses)
         addresses.flatten!
