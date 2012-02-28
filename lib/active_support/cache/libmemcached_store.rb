@@ -125,6 +125,8 @@ module ActiveSupport
       def delete(name, options={})
         @cache.delete(name)
         true
+      rescue Memcached::NotFound
+        false   
       rescue Memcached::Error => e
         log_error(e)
         raise
