@@ -54,21 +54,80 @@ module ActiveSupport
       def read_multi(*names)
         options = names.extract_options!
         options = merged_options(options)
-        values = {}
         instrument(:read_multi, names) do
-          values = @cache.get(names)
+          @cache.get(names)
         end  
-        return nil if values.nil?
-        results = {}
-        values.each do |k, v|
-          entry = deserialize_entry(v)
-          results[k] = entry.value
-        end
-        return results  
       rescue Memcached::Error => e
         log_error(e)
         raise
       end
+
+      def read(name, options={})
+        instrument(:read, name, options) do |payload|
+          value = @cache.get(name)
+          payload[:hit] = !!entry if payload
+          value
+        end    
+      rescue Memcached::NotFound
+        nil      
+      rescue Memcached::Error => e
+        log_error(e)
+        raise
+      end
+
+      def exists?(name, options={})
+        !!@cache.read(name)
+      rescue Memcached::Error => e
+        log_error(e)
+        raise
+      end
+      
+      def write(name, value, options={})
+        method = (options && options[:unless_exist]) ? :add : :set                
+        instrument(:write, name, options) do |payload|
+          @cache.send(method, name, value, expires_in(options), marshal?(options))
+        end
+        true
+      rescue Memcached::Error => e
+        log_error(e)
+        raise
+      end
+
+      def fetch(name, options={})
+        if block_given?
+          value = nil
+          unless options[:force]
+            value = instrument(:read, name, options) do |payload|
+              payload[:super_operation] = :fetch if payload
+              read(name, options)
+            end
+          end
+
+          if value
+            instrument(:fetch_hit, name, options) { |payload| }
+            value
+          else
+            result = instrument(:generate, name, options) do |payload|
+              yield
+            end
+            write(name, result, options)
+            result
+          end
+        else
+          read(name, options)
+        end
+      rescue Memcached::Error => e
+        log_error(e)
+        raise
+      end
+
+      def delete(name, options={})
+        @cache.delete(name)
+        true
+      rescue Memcached::Error => e
+        log_error(e)
+        raise
+      end  
 
 
       protected
