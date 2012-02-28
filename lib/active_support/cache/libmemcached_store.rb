@@ -54,7 +54,10 @@ module ActiveSupport
       def read_multi(*names)
         options = names.extract_options!
         options = merged_options(options)
-        values = @cache.get(names)
+        values = {}
+        instrument(:read_multi, names) do
+          values = @cache.get(names)
+        end  
         return nil if values.nil?
         results = {}
         values.each do |k, v|
