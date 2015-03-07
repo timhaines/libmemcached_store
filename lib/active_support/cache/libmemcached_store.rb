@@ -66,7 +66,7 @@ module ActiveSupport
       def read(name, options={})
         instrument(:read, name, options) do |payload|
           value = @cache.get(name)
-          payload[:hit] = !!entry if payload
+          payload[:hit] = !!value if payload
           value
         end    
       rescue Memcached::NotFound
